@@ -13,18 +13,15 @@ pub extern "C" fn _start() -> ! {
 
     build_os_rust::init();
 
-    fn stack_overflow() {
-        stack_overflow(); // for each recursion, the return address is pushed
-    }
-
-    // trigger a stack overflow
-    stack_overflow();
-
     // as before
     #[cfg(test)]
     test_main();
 
     println!("It did not crash!");
+    for i in 1..100 {
+        println!("-"); // new
+    }
+
     loop {}
 }
 
