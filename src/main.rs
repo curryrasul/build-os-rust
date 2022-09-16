@@ -7,14 +7,18 @@
 use build_os_rust::println;
 use core::panic::PanicInfo;
 
-#[no_mangle]
+#[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
-    build_os_rust::init(); // new
+    build_os_rust::init();
 
-    // invoke a breakpoint exception
-    x86_64::instructions::interrupts::int3(); // new
+    fn stack_overflow() {
+        stack_overflow(); // for each recursion, the return address is pushed
+    }
+
+    // trigger a stack overflow
+    stack_overflow();
 
     // as before
     #[cfg(test)]
