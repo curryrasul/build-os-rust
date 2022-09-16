@@ -18,11 +18,7 @@ pub extern "C" fn _start() -> ! {
     test_main();
 
     println!("It did not crash!");
-    for i in 1..100 {
-        println!("-"); // new
-    }
-
-    loop {}
+    build_os_rust::hlt_loop();
 }
 
 /// This function is called on panic.
@@ -30,7 +26,7 @@ pub extern "C" fn _start() -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    build_os_rust::hlt_loop();
 }
 
 #[cfg(test)]
