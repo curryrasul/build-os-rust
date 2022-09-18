@@ -4,6 +4,9 @@
 #![test_runner(build_os_rust::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+extern crate alloc;
+
+use alloc::boxed::Box;
 use bootloader::{entry_point, BootInfo};
 use build_os_rust::println;
 use core::panic::PanicInfo;
@@ -24,12 +27,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
     let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
-    let page = Page::containing_address(VirtAddr::new(0xdeadbeaf000));
-    memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
-
-    // write the string `New!` to the screen through the new mapping
-    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
-    unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e) };
+    let x = Box::new(41);
 
     // as before
     #[cfg(test)]
