@@ -1,5 +1,13 @@
+pub mod bump;
+pub mod fixed_size_block;
+pub mod linked_list;
+
+use crate::allocator::bump::Locked;
 use alloc::alloc::{GlobalAlloc, Layout};
+use bump::BumpAllocator;
 use core::ptr::null_mut;
+use fixed_size_block::FixedSizeBlockAllocator;
+use linked_list::LinkedListAllocator;
 use linked_list_allocator::LockedHeap;
 use x86_64::{
     structures::paging::{
@@ -12,7 +20,7 @@ pub const HEAP_START: usize = 0x_4444_4444_0000;
 pub const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
 
 #[global_allocator]
-static ALLOCATOR: LockedHeap = LockedHeap::empty();
+static ALLOCATOR: Locked<FixedSizeBlockAllocator> = Locked::new(FixedSizeBlockAllocator::new());
 
 pub struct Dummy;
 
@@ -51,4 +59,8 @@ pub fn init_heap(
     }
 
     Ok(())
+}
+
+fn align_up(addr: usize, align: usize) -> usize {
+    (addr + align - 1) & !(align - 1)
 }
