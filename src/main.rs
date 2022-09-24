@@ -9,6 +9,8 @@ extern crate alloc;
 use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use bootloader::{entry_point, BootInfo};
 use build_os_rust::println;
+use build_os_rust::task::executor::Executor;
+use build_os_rust::task::keyboard;
 use build_os_rust::task::{simple_executor::SimpleExecutor, Task};
 use core::panic::PanicInfo;
 
@@ -29,16 +31,14 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 
-    let mut executor = SimpleExecutor::new();
-    executor.spawn(Task::new(example_task()));
-    executor.run();
-
     // as before
     #[cfg(test)]
     test_main();
 
-    println!("It did not crash!");
-    build_os_rust::hlt_loop();
+    let mut executor = Executor::new(); // new
+    executor.spawn(Task::new(example_task()));
+    executor.spawn(Task::new(keyboard::print_keypresses()));
+    executor.run();
 }
 
 async fn async_number() -> u32 {
